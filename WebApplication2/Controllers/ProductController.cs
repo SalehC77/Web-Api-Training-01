@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using WebApplication2.Data;
 using WebApplication2.Filters;
 using WebApplication2.Models;
@@ -8,6 +10,7 @@ namespace WebApplication2.Controllers
 {
     [ApiController]
     [Route("Api/[controller]")]
+    [Authorize]
     // [LogSensitiveAction] this attribute is for action fillter debug on this contoller just not for others
     public class ProductController : ControllerBase
     {
@@ -24,15 +27,19 @@ namespace WebApplication2.Controllers
 
         [HttpGet]
         [Route("GetAll")]
+        //[Authorize]
         public async Task<ActionResult<IEnumerable<Product>>> GetAllProduct()
         {
+            var Username = User.Identity.Name;
+            var userid = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier)?.Value;// return Id of User
             var Recodes = await this._dbContext.Set<Product>().ToListAsync();
             return Ok(Recodes);
         }
 
         [HttpGet]
         [Route("GetById/{Id}")]
-        [LogSensitiveAction]
+        //[Route("{key}")]                    //[FromQuery (Name = "key")]
+        [LogSensitiveAction]                 //[FromRoute(Name = "Key")]
         public async Task<ActionResult<Product>> GetById(int Id)
         {
             _logger.LogDebug("Getting product #" + Id);
@@ -48,8 +55,10 @@ namespace WebApplication2.Controllers
 
         [HttpPost]
         [Route("Create")]
-
-        public async Task<ActionResult<int>> CreateProduct(Product product)
+        [AllowAnonymous] // put the action for everyone no constrains
+                                        //[FromQuery] Product product,[FromQuery(Name = "p2")] Product product2
+        public async Task<ActionResult<int>> CreateProduct(Product product ,
+            [FromHeader (Name = "Accept-Language")] string Language)
         {
             this._dbContext.Set<Product>().Add(product);
             await this._dbContext.SaveChangesAsync();

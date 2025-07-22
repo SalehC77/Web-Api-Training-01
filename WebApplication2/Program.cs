@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using WebApplication2;
+using WebApplication2.Authentication;
 using WebApplication2.Data;
 using WebApplication2.Filters;
 using WebApplication2.Middlewares;
@@ -32,7 +34,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ApplicationDbContext>//["ConnectionStrings:DefaultConnection"]
-    (cfg => cfg.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); 
+    (cfg => cfg.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+
+builder.Services.AddAuthentication()
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Basic",null);
+
 
 var app = builder.Build();
 
