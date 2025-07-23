@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using WebApplication2;
 using WebApplication2.Authentication;
 using WebApplication2.Data;
@@ -38,9 +41,29 @@ builder.Services.AddDbContext<ApplicationDbContext>//["ConnectionStrings:Default
 
 
 
+//builder.Services.AddAuthentication()
+//    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Basic",null);
+//*****************************************************
+var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtOptions>();
+builder.Services.AddSingleton(jwtOptions);
 builder.Services.AddAuthentication()
-    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Basic",null);
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,Options => 
+    {
+        Options.SaveToken = true;
+        Options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtOptions.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwtOptions.Audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SigningKey))
 
+        };
+
+
+    });
+//******************************************************
 
 var app = builder.Build();
 
