@@ -4,18 +4,23 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography.Xml;
 using System.Text;
+using WebApplication2.Data;
 
 namespace WebApplication2.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UsersController(JwtOptions jwtOptions) : ControllerBase
+    public class UsersController(JwtOptions jwtOptions,ApplicationDbContext dbContext) : ControllerBase
     {
 
         [HttpPost]
         [Route("auth")]
         public ActionResult<string> AuthenticateUser(AuthenticationRequest request)
         {
+            var user = dbContext.Set<User>().FirstOrDefault(x => x.Name == request.UserName &&
+            x.Password == request.Password);
+            if (user == null) return Unauthorized();
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
@@ -25,8 +30,8 @@ namespace WebApplication2.Controllers
                 SecurityAlgorithms.HmacSha256),
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new (ClaimTypes.NameIdentifier,request.UserName),
-                    new (ClaimTypes.Email,"a@b.com")
+                    new (ClaimTypes.NameIdentifier,user.Id.ToString()),
+                    new (ClaimTypes.Name, user.Name)
                 })
             };
             var securityToken = tokenHandler.CreateToken(tokenDescriptor);

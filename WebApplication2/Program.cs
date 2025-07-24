@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WebApplication2;
 using WebApplication2.Authentication;
+using WebApplication2.Authorization;
 using WebApplication2.Data;
 using WebApplication2.Filters;
 using WebApplication2.Middlewares;
@@ -29,6 +30,7 @@ builder.Services.Configure<AttachmentOptions>(builder.Configuration.GetSection("
 // the options delegeate adding by me in the code below;
 builder.Services.AddControllers( Options =>
     {
+        Options.Filters.Add<PermissionBasedAuthorizaitionFilter>();
         Options.Filters.Add<LogActivityFilter>();// is global Action Filter for every Action in project
        /* Options.Filters.Add<LogSensitiveActionAttribute>();*/// here i can make this fillter global and is also work for conroller or Action just;
     });

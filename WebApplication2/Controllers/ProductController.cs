@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using WebApplication2.Authorization;
 using WebApplication2.Data;
 using WebApplication2.Filters;
 using WebApplication2.Models;
@@ -27,6 +28,7 @@ namespace WebApplication2.Controllers
 
         [HttpGet]
         [Route("GetAll")]
+        [CheckPermission(Permission.ReadProducts)]
         //[Authorize]
         public async Task<ActionResult<IEnumerable<Product>>> GetAllProduct()
         {

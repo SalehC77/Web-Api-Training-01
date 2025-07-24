@@ -15,6 +15,8 @@ namespace WebApplication2.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Product>().ToTable("Product");
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<Userpermission>().ToTable("Userpermissions").HasKey(x => new {x.UserId ,x.permissionId});
         }
 
 
