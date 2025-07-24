@@ -28,10 +28,15 @@ namespace WebApplication2.Controllers
 
         [HttpGet]
         [Route("GetAll")]
-        [CheckPermission(Permission.ReadProducts)]
+        [Authorize(Policy = "SuperUsersOnly")]
+        //[Authorize(Policy = "EmployeeOnly")] //EmployeeOnly
+        // [CheckPermission(Permission.ReadProducts)]
+        //[Authorize("Admin,SuperUser")]
+        //[Authorize("SuperUser")] one after one is mean && more than one Role
         //[Authorize]
         public async Task<ActionResult<IEnumerable<Product>>> GetAllProduct()
         {
+            var isAdmin = User.IsInRole("Admin");
             var Username = User.Identity.Name;
             var userid = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier)?.Value;// return Id of User
             var Recodes = await this._dbContext.Set<Product>().ToListAsync();

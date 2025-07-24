@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks.Dataflow;
 using WebApplication2;
 using WebApplication2.Authentication;
 using WebApplication2.Authorization;
@@ -42,6 +44,24 @@ builder.Services.AddDbContext<ApplicationDbContext>//["ConnectionStrings:Default
     (cfg => cfg.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("SuperUsersOnly", builder =>
+    {
+      //  builder.RequireRole("Admin", "SuperUser");
+        builder.RequireAssertion(context =>
+        {
+            //  return context.User.IsInRole("SuperUser");
+            var dob = DateTime.Parse(context.User.FindFirstValue("DateofBirth"));
+            return DateTime.Today.Year - dob.Year >= 25;
+        });
+    });
+    options.AddPolicy("EmployeeOnly", builder =>
+    {
+        builder.RequireClaim("UserType","Employees");
+    });
+});
 
 //builder.Services.AddAuthentication()
 //    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Basic",null);

@@ -30,8 +30,12 @@ namespace WebApplication2.Controllers
                 SecurityAlgorithms.HmacSha256),
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new (ClaimTypes.NameIdentifier,user.Id.ToString()),
-                    new (ClaimTypes.Name, user.Name)
+                    new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new(ClaimTypes.Name, user.Name),
+                    new(ClaimTypes.Role, "Admin"),
+                    //new (ClaimTypes.Role,"SuperUser")
+                    new("UserType", "Employee"),
+                    new("DateOfBirth","1970-01-01")
                 })
             };
             var securityToken = tokenHandler.CreateToken(tokenDescriptor);
